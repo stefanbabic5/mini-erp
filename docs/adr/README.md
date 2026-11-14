@@ -15,7 +15,7 @@ Each significant decision gets a short record: the context, the decision, the al
 | [0007](0007-free-dependencies-only.md) | Free dependencies only | Accepted |
 | [0008](0008-stock-reservation-concurrency.md) | Optimistic concurrency for stock reservation | Accepted |
 | [0009](0009-document-numbering.md) | Gapless invoice numbers, gaps allowed elsewhere | Accepted |
-| [0010](0010-docker-desktop-for-local-containers.md) | Docker Desktop for local containers (exception to ADR-0007) | Proposed |
+| [0010](0010-docker-desktop-for-local-containers.md) | Docker Desktop for local containers (exception to ADR-0007) | Accepted |
 
 ## Template
 

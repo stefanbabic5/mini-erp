@@ -1,6 +1,6 @@
 # ADR-0010: Docker Desktop for local containers
 
-**Status:** Proposed · **Date:** 2026-11-14
+**Status:** Accepted · **Date:** 2026-11-14
 
 ## Context
 The project runs PostgreSQL, Keycloak and the observability dashboard in containers ([ADR-0002](0002-postgresql-and-ef-core.md), [ADR-0006](0006-keycloak-for-identity.md)), and its integration tests start PostgreSQL through Testcontainers. Development happens on Windows 11, which needs a Linux container engine. [ADR-0007](0007-free-dependencies-only.md) allows "free for individuals" licences only as a recorded exception when no reasonable OSI-licensed option exists.
