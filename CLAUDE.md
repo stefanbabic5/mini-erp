@@ -57,7 +57,8 @@ Stefan is a Business Central / AL developer moving to .NET. He knows OOP well an
 - **Multi-tenancy** ([ADR-0003](docs/adr/0003-multi-tenancy.md)): tenant only from the token's `tenant_id` claim; global query filters; another tenant's id answers `404`.
 - **Inventory ledger** ([ADR-0004](docs/adr/0004-append-only-inventory-ledger.md)): append-only entries plus a balance projection updated in the same transaction.
 - **Transactional outbox** ([ADR-0005](docs/adr/0005-transactional-outbox.md)) for e-invoice submission; at-least-once delivery, idempotent handlers.
-- **Keycloak** ([ADR-0006](docs/adr/0006-keycloak-for-identity.md)) as OIDC provider; tests sign their own tokens.
+- **Keycloak** ([ADR-0006](docs/adr/0006-keycloak-for-identity.md)) as OIDC provider; tests sign their own tokens (`tests/MiniErp.IntegrationTests/TestTokens.cs`).
+- **Security** (`src/MiniErp.Platform/Security/`): endpoints require a *permission* (`Permissions`, used as the policy name), never a role; `RolePermissions` is the only role → permission matrix (specification §2). A fallback policy makes every endpoint require an authenticated user with a valid `tenant_id` unless it calls `AllowAnonymous()`. Code gets the tenant from `ITenantContext`, never from the request.
 - **Stock reservation** uses optimistic concurrency with a retry of the whole unit of work ([ADR-0008](docs/adr/0008-stock-reservation-concurrency.md)). **Invoice numbers** are gapless through a row lock on the number series ([ADR-0009](docs/adr/0009-document-numbering.md)).
 
 ## Prerequisites
@@ -72,11 +73,12 @@ MiniErp.slnx                 solution (XML .slnx format)
 global.json                  pins the .NET SDK; opts dotnet test into Microsoft.Testing.Platform
 Directory.Build.props        shared build settings: net10.0, nullable, warnings as errors
 Directory.Packages.props     every NuGet version, with its licence (central package management)
-compose.yaml                 local infrastructure: PostgreSQL 18 and the OpenTelemetry dashboard
+compose.yaml                 local infrastructure: PostgreSQL 18, Keycloak and the OpenTelemetry dashboard
 .env.example                 optional overrides for compose.yaml (copy to the git-ignored .env)
+deploy/keycloak/             realm imported by Keycloak on start: tenants Alfa and Beta, one user per role
 src/MiniErp.Api/             API host: wires modules together, no business logic
-  Hosting/                   observability (OpenTelemetry) and health endpoints
-src/MiniErp.Platform/        shared building blocks: module endpoint convention, database (NpgsqlDataSource + health check); later tenancy, outbox, number series
+  Hosting/                   observability (OpenTelemetry), health endpoints, OpenAPI bearer scheme
+src/MiniErp.Platform/        shared building blocks: module endpoint convention, Database/ (NpgsqlDataSource + health check), Security/ (JWT, permissions, tenant context, /api/platform/me); later outbox, number series
 src/Modules/MiniErp.<Name>/  one project per module: Catalog, Inventory, Sales, Invoicing
 tests/MiniErp.ArchitectureTests/  module boundary rules (ADR-0001), checked on the compiled assemblies
 tests/MiniErp.IntegrationTests/   the real API in memory against PostgreSQL in Docker (Testcontainers)
@@ -88,7 +90,7 @@ Each module exposes only `<Name>Module` (with `Add<Name>Module` and `Map<Name>Mo
 ## Commands
 
 ```bash
-docker compose up -d                  # start PostgreSQL and the dashboard
+docker compose up -d                  # start PostgreSQL, Keycloak and the dashboard
 dotnet build                          # build everything
 dotnet test                           # run all tests; integration tests need Docker running
 dotnet run --project src/MiniErp.Api  # start the API on http://localhost:5100
@@ -101,6 +103,14 @@ docker compose down                   # stop the containers (add -v to delete th
 | http://localhost:5100/openapi/v1.json | OpenAPI document |
 | http://localhost:5100/health/live, /health/ready | liveness (process up) and readiness (PostgreSQL reachable) |
 | http://localhost:18888 | dashboard: logs, traces and metrics from the API |
+| http://localhost:8080 | Keycloak admin console (admin / admin), realm `mini-erp` |
+| http://localhost:5100/api/platform/me | who the API thinks you are: user, tenant, roles, permissions |
+
+Local users (password `dev-password`): `alfa.admin`, `alfa.sales`, `alfa.warehouse`, `alfa.finance` and the same four for `beta`. Get a token for manual calls (development client, password grant):
+
+```bash
+curl -s http://localhost:8080/realms/mini-erp/protocol/openid-connect/token -d grant_type=password -d client_id=mini-erp-dev -d username=alfa.sales -d password=dev-password
+```
 
 Errors are RFC 9457 Problem Details (`application/problem+json`). Telemetry is exported only when `OTEL_EXPORTER_OTLP_ENDPOINT` is set (the `http` launch profile sets it to the dashboard).
 

@@ -8,7 +8,6 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
-
   <ItemGroup Label="Data">
     <!-- PostgreSQL licence -->
     <PackageVersion Include="Npgsql.DependencyInjection" Version="10.0.3" />
@@ -16,11 +15,12 @@
 
   <ItemGroup Label="API">
     <!-- MIT -->
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.15" />
+    <!-- MIT -->
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.15" />
     <!-- MIT -->
     <PackageVersion Include="Scalar.AspNetCore" Version="2.21.0" />
   </ItemGroup>
-
   <ItemGroup Label="Observability">
     <!-- PostgreSQL licence -->
     <PackageVersion Include="Npgsql.OpenTelemetry" Version="10.0.3" />
@@ -31,7 +31,6 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.21.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.21.0" />
   </ItemGroup>
-
   <ItemGroup Label="Testing">
     <!-- MIT -->
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.15" />
