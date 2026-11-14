@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!-- The API host: wires the modules together. It holds no business logic of its own. -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\MiniErp.Platform\MiniErp.Platform.csproj" />
+    <ProjectReference Include="..\Modules\MiniErp.Catalog\MiniErp.Catalog.csproj" />
+    <ProjectReference Include="..\Modules\MiniErp.Inventory\MiniErp.Inventory.csproj" />
+    <ProjectReference Include="..\Modules\MiniErp.Sales\MiniErp.Sales.csproj" />
+    <ProjectReference Include="..\Modules\MiniErp.Invoicing\MiniErp.Invoicing.csproj" />
+  </ItemGroup>
+
+</Project>

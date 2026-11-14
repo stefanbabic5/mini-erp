@@ -1,0 +1,14 @@
+<!--
+  Settings shared by every project in the repository. MSBuild picks this file up
+  automatically for all projects below this folder, so individual .csproj files
+  only declare what is specific to them.
+-->
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AnalysisLevel>latest</AnalysisLevel>
+  </PropertyGroup>
+</Project>

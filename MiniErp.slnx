@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MiniErp.Api/MiniErp.Api.csproj" />
+    <Project Path="src/MiniErp.Platform/MiniErp.Platform.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/">
+    <Project Path="src/Modules/MiniErp.Catalog/MiniErp.Catalog.csproj" />
+    <Project Path="src/Modules/MiniErp.Inventory/MiniErp.Inventory.csproj" />
+    <Project Path="src/Modules/MiniErp.Invoicing/MiniErp.Invoicing.csproj" />
+    <Project Path="src/Modules/MiniErp.Sales/MiniErp.Sales.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MiniErp.ArchitectureTests/MiniErp.ArchitectureTests.csproj" />
+  </Folder>
+</Solution>

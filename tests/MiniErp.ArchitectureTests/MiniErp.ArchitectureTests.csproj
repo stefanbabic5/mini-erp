@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Checks the module boundaries from ADR-0001 by inspecting the compiled assemblies. -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\MiniErp.Platform\MiniErp.Platform.csproj" />
+    <ProjectReference Include="..\..\src\Modules\MiniErp.Catalog\MiniErp.Catalog.csproj" />
+    <ProjectReference Include="..\..\src\Modules\MiniErp.Inventory\MiniErp.Inventory.csproj" />
+    <ProjectReference Include="..\..\src\Modules\MiniErp.Sales\MiniErp.Sales.csproj" />
+    <ProjectReference Include="..\..\src\Modules\MiniErp.Invoicing\MiniErp.Invoicing.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Shouldly" />
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

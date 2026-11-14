@@ -65,9 +65,31 @@ Stefan is a Business Central / AL developer moving to .NET. He knows OOP well an
 - .NET SDK 10
 - Docker with Linux containers (Docker Desktop with the WSL 2 backend on Windows; see [ADR-0010](docs/adr/0010-docker-desktop-for-local-containers.md))
 
+## Repository layout
+
+```
+MiniErp.slnx                 solution (XML .slnx format)
+global.json                  pins the .NET SDK; opts dotnet test into Microsoft.Testing.Platform
+Directory.Build.props        shared build settings: net10.0, nullable, warnings as errors
+Directory.Packages.props     every NuGet version, with its licence (central package management)
+src/MiniErp.Api/             API host: wires modules together, no business logic
+src/MiniErp.Platform/        shared building blocks (module endpoint convention; later tenancy, outbox, number series)
+src/Modules/MiniErp.<Name>/  one project per module: Catalog, Inventory, Sales, Invoicing
+tests/MiniErp.ArchitectureTests/  module boundary rules (ADR-0001), checked on the compiled assemblies
+.github/workflows/ci.yml     build + test on every push to main and every pull request
+```
+
+Each module exposes only `<Name>Module` (with `Add<Name>Module` and `Map<Name>Module`) and types in `MiniErp.<Name>.Contracts`; everything else is `internal`. A module never references another module's project.
+
 ## Commands
 
-None yet. Phase 1 adds build, test, `docker compose` and migration commands here.
+```bash
+dotnet build                          # build everything
+dotnet test                           # run all tests (Microsoft.Testing.Platform)
+dotnet run --project src/MiniErp.Api  # start the API on http://localhost:5100
+```
+
+Phase 1 adds `docker compose` and migration commands here.
 
 ## Skill library
 
