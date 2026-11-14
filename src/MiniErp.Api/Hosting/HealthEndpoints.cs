@@ -13,15 +13,17 @@ internal static class HealthEndpoints
     /// </summary>
     public static IEndpointRouteBuilder MapHealthEndpoints(this IEndpointRouteBuilder endpoints)
     {
+        // Probes are called by infrastructure without a token, so they opt out of the
+        // fallback authorization policy.
         endpoints.MapHealthChecks("/health/live", new HealthCheckOptions
         {
             Predicate = _ => false,
-        });
+        }).AllowAnonymous();
 
         endpoints.MapHealthChecks("/health/ready", new HealthCheckOptions
         {
             Predicate = check => check.Tags.Contains(DatabaseRegistration.ReadyTag),
-        });
+        }).AllowAnonymous();
 
         return endpoints;
     }

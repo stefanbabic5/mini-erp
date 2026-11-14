@@ -1,0 +1,293 @@
+{
+  "realm": "mini-erp",
+  "displayName": "mini-erp (local development)",
+  "enabled": true,
+  "sslRequired": "none",
+  "accessTokenLifespan": 300,
+  "roles": {
+    "realm": [
+      {
+        "name": "Admin",
+        "description": "Everything in the tenant"
+      },
+      {
+        "name": "Sales",
+        "description": "Customers and sales orders"
+      },
+      {
+        "name": "Warehouse",
+        "description": "Items, warehouses, stock and shipments"
+      },
+      {
+        "name": "Finance",
+        "description": "Invoices and e-invoicing"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "mini-erp-api",
+      "name": "mini-erp API (token audience)",
+      "enabled": true,
+      "bearerOnly": true,
+      "publicClient": false,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false
+    },
+    {
+      "clientId": "mini-erp-dev",
+      "name": "Local development client",
+      "description": "Public client for local testing only. Password grant is enabled so tokens can be fetched with curl.",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "redirectUris": [
+        "http://localhost:5100/*"
+      ],
+      "webOrigins": [
+        "http://localhost:5100"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "protocolMappers": [
+        {
+          "name": "audience: mini-erp-api",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.client.audience": "mini-erp-api",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        },
+        {
+          "name": "tenant_id",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "tenant_id",
+            "claim.name": "tenant_id",
+            "jsonType.label": "String",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "userinfo.token.claim": "false"
+          }
+        },
+        {
+          "name": "roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "config": {
+            "claim.name": "roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "userinfo.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ],
+  "components": {
+    "org.keycloak.userprofile.UserProfileProvider": [
+      {
+        "providerId": "declarative-user-profile",
+        "subComponents": {},
+        "config": {
+          "kc.user.profile.config": [
+            "{\"attributes\":[{\"name\":\"username\",\"displayName\":\"${username}\",\"validations\":{\"length\":{\"min\":3,\"max\":255},\"username-prohibited-characters\":{},\"up-username-not-idn-homograph\":{}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"email\",\"displayName\":\"${email}\",\"validations\":{\"email\":{},\"length\":{\"max\":255}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"firstName\",\"displayName\":\"${firstName}\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"lastName\",\"displayName\":\"${lastName}\",\"validations\":{\"length\":{\"max\":255},\"person-name-prohibited-characters\":{}},\"permissions\":{\"view\":[\"admin\",\"user\"],\"edit\":[\"admin\",\"user\"]},\"multivalued\":false},{\"name\":\"tenant_id\",\"displayName\":\"Tenant id\",\"permissions\":{\"view\":[\"admin\"],\"edit\":[\"admin\"]},\"multivalued\":false}],\"groups\":[{\"name\":\"user-metadata\",\"displayHeader\":\"User metadata\",\"displayDescription\":\"Attributes, which refer to user metadata\"}]}"
+          ]
+        }
+      }
+    ]
+  },
+  "users": [
+    {
+      "username": "alfa.admin",
+      "enabled": true,
+      "email": "alfa.admin@example.test",
+      "emailVerified": true,
+      "firstName": "Alfa",
+      "lastName": "Admin",
+      "attributes": {
+        "tenant_id": [
+          "a1fa0000-0000-0000-0000-000000000001"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "dev-password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "Admin"
+      ]
+    },
+    {
+      "username": "alfa.sales",
+      "enabled": true,
+      "email": "alfa.sales@example.test",
+      "emailVerified": true,
+      "firstName": "Alfa",
+      "lastName": "Sales",
+      "attributes": {
+        "tenant_id": [
+          "a1fa0000-0000-0000-0000-000000000001"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "dev-password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "Sales"
+      ]
+    },
+    {
+      "username": "alfa.warehouse",
+      "enabled": true,
+      "email": "alfa.warehouse@example.test",
+      "emailVerified": true,
+      "firstName": "Alfa",
+      "lastName": "Warehouse",
+      "attributes": {
+        "tenant_id": [
+          "a1fa0000-0000-0000-0000-000000000001"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "dev-password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "Warehouse"
+      ]
+    },
+    {
+      "username": "alfa.finance",
+      "enabled": true,
+      "email": "alfa.finance@example.test",
+      "emailVerified": true,
+      "firstName": "Alfa",
+      "lastName": "Finance",
+      "attributes": {
+        "tenant_id": [
+          "a1fa0000-0000-0000-0000-000000000001"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "dev-password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "Finance"
+      ]
+    },
+    {
+      "username": "beta.admin",
+      "enabled": true,
+      "email": "beta.admin@example.test",
+      "emailVerified": true,
+      "firstName": "Beta",
+      "lastName": "Admin",
+      "attributes": {
+        "tenant_id": [
+          "b37a0000-0000-0000-0000-000000000002"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "dev-password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "Admin"
+      ]
+    },
+    {
+      "username": "beta.sales",
+      "enabled": true,
+      "email": "beta.sales@example.test",
+      "emailVerified": true,
+      "firstName": "Beta",
+      "lastName": "Sales",
+      "attributes": {
+        "tenant_id": [
+          "b37a0000-0000-0000-0000-000000000002"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "dev-password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "Sales"
+      ]
+    },
+    {
+      "username": "beta.warehouse",
+      "enabled": true,
+      "email": "beta.warehouse@example.test",
+      "emailVerified": true,
+      "firstName": "Beta",
+      "lastName": "Warehouse",
+      "attributes": {
+        "tenant_id": [
+          "b37a0000-0000-0000-0000-000000000002"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "dev-password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "Warehouse"
+      ]
+    },
+    {
+      "username": "beta.finance",
+      "enabled": true,
+      "email": "beta.finance@example.test",
+      "emailVerified": true,
+      "firstName": "Beta",
+      "lastName": "Finance",
+      "attributes": {
+        "tenant_id": [
+          "b37a0000-0000-0000-0000-000000000002"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "dev-password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "Finance"
+      ]
+    }
+  ]
+}

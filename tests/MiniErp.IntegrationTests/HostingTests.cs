@@ -59,7 +59,9 @@ public class HostingTests(ApiFactory api)
     [Fact]
     public async Task Unknown_route_answers_404_as_problem_details()
     {
-        var response = await _client.GetAsync("/api/catalog/does-not-exist", TestContext.Current.CancellationToken);
+        using var client = api.CreateClientFor(TestTokens.TenantAlfa, "Admin");
+
+        var response = await client.GetAsync("/api/catalog/does-not-exist", TestContext.Current.CancellationToken);
 
         response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
         response.Content.Headers.ContentType?.MediaType.ShouldBe("application/problem+json");

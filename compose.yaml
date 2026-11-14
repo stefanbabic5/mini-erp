@@ -23,6 +23,21 @@ services:
       timeout: 3s
       retries: 10
 
+  # Identity provider (OIDC). Imports deploy/keycloak/realm-mini-erp.json on start:
+  # tenants Alfa and Beta, one user per role in each (password: dev-password).
+  # Admin console: http://localhost:8080 (admin / admin). Development mode only.
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.2
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "${KEYCLOAK_PORT:-8080}:8080"
+    volumes:
+      - ./deploy/keycloak:/opt/keycloak/data/import:ro
+
   # Receives logs, traces and metrics over OTLP and shows them in a web UI.
   dashboard:
     image: mcr.microsoft.com/dotnet/aspire-dashboard:13.6.5

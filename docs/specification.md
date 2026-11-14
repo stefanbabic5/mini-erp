@@ -47,6 +47,20 @@ Users belong to exactly one **tenant** (a company). Roles are per user:
 
 Everyone in a tenant can read the catalog and stock levels.
 
+### Permissions
+
+Endpoints require a **permission**, never a role. Roles grant permissions through one matrix in code (`RolePermissions`), and `PermissionMatrixTests` checks it against this table. Permissions are added as phases add features.
+
+| Permission | Admin | Sales | Warehouse | Finance |
+|---|:-:|:-:|:-:|:-:|
+| `catalog.read` | ✓ | ✓ | ✓ | ✓ |
+| `catalog.write` (items) | ✓ | | ✓ | |
+| `sales.customers.read` | ✓ | ✓ | ✓ | ✓ |
+| `sales.customers.write` | ✓ | ✓ | | |
+| `platform.number-series.manage` | ✓ | | | |
+
+Every endpoint without an explicit policy still requires an authenticated user with a valid `tenant_id` (the fallback policy). Only health probes and, in development, the OpenAPI document and its UI are anonymous.
+
 ---
 
 ## 3. Modules
