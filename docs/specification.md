@@ -189,6 +189,9 @@ Each rule has an id. Tests reference these ids in their names, so any rule can b
 Each phase ends with something that runs, is tested and can be shown. A phase is done only when its acceptance criteria pass in CI.
 
 ### Phase 1: Foundation
+
+**Done (2026-11-14).** Items and customers are the phase 1 features; the acceptance criteria below are covered by the integration tests and were checked from a fresh clone.
+
 - Solution structure, modules, architecture tests that enforce module boundaries.
 - `docker compose up` starts the API, PostgreSQL, Keycloak (with an imported realm, two tenants and seeded users), and the observability dashboard.
 - Auth: JWT validation, `tenant_id` and role claims, permission policies.
