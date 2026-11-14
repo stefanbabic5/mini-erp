@@ -92,7 +92,7 @@ src/MiniErp.Api/             API host: wires modules together, no business logic
   Hosting/                   observability (OpenTelemetry), health endpoints, OpenAPI bearer scheme
 src/MiniErp.Platform/        shared building blocks: module endpoint convention, Database/ (NpgsqlDataSource, ModuleDbContext, tenant interceptor, migration runner, health check), Security/ (JWT, permissions, tenant context, /api/platform/me), Numbering/ (number series), PlatformDbContext + Migrations/ (schema platform); later outbox
 dotnet-tools.json            local tools: dotnet-ef (run `dotnet tool restore` once)
-src/Modules/MiniErp.<Name>/  one project per module: Catalog (items), Inventory, Sales, Invoicing; each with its DbContext and Migrations/
+src/Modules/MiniErp.<Name>/  one project per module: Catalog (items), Sales (customers), Inventory, Invoicing; each with its DbContext and Migrations/
 tests/MiniErp.ArchitectureTests/  module boundary rules (ADR-0001), checked on the compiled assemblies
 tests/MiniErp.IntegrationTests/   the real API in memory against PostgreSQL in Docker (Testcontainers)
 .github/workflows/ci.yml     build + test on every push to main and every pull request
