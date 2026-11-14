@@ -9,7 +9,7 @@ Guidance for Claude Code sessions in this repository.
 - Specification (scope, domain model, business rules `BR-xx`, phases): [docs/specification.md](docs/specification.md)
 - Architecture decisions: [docs/adr/](docs/adr/README.md)
 
-**Status (2026-11-14):** phase 1 in progress (specification §8). Design documents are merged; ADRs 0001–0010 are `Accepted`. Public repository: https://github.com/stefanbabic5/mini-erp. Work lands through pull requests, squash-merged into `main`.
+**Status (2026-11-14):** phase 1 complete (specification §8): foundation, auth, tenancy, number series, Catalog items, Sales customers. Next: phase 2 (inventory and sales orders). ADRs 0001–0010 are `Accepted`. Public repository: https://github.com/stefanbabic5/mini-erp. Work lands through pull requests, squash-merged into `main`.
 
 ## Working agreements
 
@@ -138,4 +138,4 @@ Errors are RFC 9457 Problem Details (`application/problem+json`). Telemetry is e
 
 ## Skill library
 
-Not created yet, on purpose. A `.claude/skills/` library will be generated at the end of phase 1, when there is code, tests and git history to ground it in. Until then this file is the only project guide.
+Not created yet. With phase 1 complete, a `.claude/skills/` library is generated next, in its own session, grounded in this code, its tests and its git history. Until it exists, this file is the only project guide.
