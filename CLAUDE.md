@@ -9,7 +9,7 @@ Guidance for Claude Code sessions in this repository.
 - Specification (scope, domain model, business rules `BR-xx`, phases): [docs/specification.md](docs/specification.md)
 - Architecture decisions: [docs/adr/](docs/adr/README.md)
 
-**Status (2026-11-14):** phase 1 in progress (specification §8). Design documents are merged; ADRs 0001–0009 are `Accepted`; ADR-0010 is `Proposed`. Public repository: https://github.com/stefanbabic5/mini-erp. Work lands through pull requests, squash-merged into `main`.
+**Status (2026-11-14):** phase 1 in progress (specification §8). Design documents are merged; ADRs 0001–0010 are `Accepted`. Public repository: https://github.com/stefanbabic5/mini-erp. Work lands through pull requests, squash-merged into `main`.
 
 ## Working agreements
 
