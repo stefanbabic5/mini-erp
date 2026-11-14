@@ -1,0 +1,16 @@
+<!--
+  Central package management: every NuGet package version is declared once, here.
+  Project files reference packages without a version. Before adding a package,
+  check its licence (ADR-0007) and note it in the pull request.
+-->
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup Label="Testing">
+    <!-- BSD-3-Clause -->
+    <PackageVersion Include="Shouldly" Version="4.3.0" />
+    <!-- Apache-2.0. Runs on Microsoft.Testing.Platform (opted in through global.json). -->
+    <PackageVersion Include="xunit.v3" Version="4.0.3" />
+  </ItemGroup>
+</Project>

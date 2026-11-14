@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Invoicing module. Only InvoicingModule (registration) and types in the MiniErp.Invoicing.Contracts
+    namespace may be public; everything else is internal. tests/MiniErp.ArchitectureTests
+    enforces this and the module boundaries (ADR-0001).
+  -->
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\MiniErp.Platform\MiniErp.Platform.csproj" />
+  </ItemGroup>
+
+</Project>
