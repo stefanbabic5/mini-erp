@@ -49,16 +49,22 @@ public class ModuleBoundaryTests
         var registrationClass = $"MiniErp.{moduleName}.{moduleName}Module";
         var contractsNamespace = $"MiniErp.{moduleName}.Contracts";
 
+        // EF Core generates migration classes as public; they describe the module's own schema
+        // and no other module can use them, so they are the one allowed exception.
+        var migrationsNamespace = $"MiniErp.{moduleName}.Migrations";
+
         var unexpectedPublicTypes = module.GetExportedTypes()
             .Where(type => type.FullName != registrationClass)
-            .Where(type => type.Namespace != contractsNamespace
-                           && type.Namespace?.StartsWith(contractsNamespace + ".", StringComparison.Ordinal) != true)
+            .Where(type => !IsInNamespace(type, contractsNamespace) && !IsInNamespace(type, migrationsNamespace))
             .Select(type => type.FullName)
             .ToList();
 
         unexpectedPublicTypes.ShouldBeEmpty(
             $"everything in the {moduleName} module except {registrationClass} and {contractsNamespace} must be internal");
     }
+
+    private static bool IsInNamespace(Type type, string @namespace) =>
+        type.Namespace == @namespace || type.Namespace?.StartsWith(@namespace + ".", StringComparison.Ordinal) == true;
 
     private static IEnumerable<string?> ReferencedAssemblyNames(Assembly assembly) =>
         assembly.GetReferencedAssemblies().Select(reference => reference.Name);

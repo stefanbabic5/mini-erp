@@ -56,6 +56,17 @@ Stefan is a Business Central / AL developer moving to .NET. He knows OOP well an
 - **PostgreSQL + EF Core** ([ADR-0002](docs/adr/0002-postgresql-and-ef-core.md)), `xmin` as the concurrency token.
 - **Multi-tenancy** ([ADR-0003](docs/adr/0003-multi-tenancy.md)): tenant only from the token's `tenant_id` claim; global query filters; another tenant's id answers `404`. Every module DbContext derives from `ModuleDbContext` (own schema, own migrations history, a tenant query filter on every `ITenantOwned` entity) and is registered with `AddModuleDbContext<T>()`, which adds `TenantSaveChangesInterceptor` (stamps the tenant on inserts, throws `CrossTenantWriteException` on writes to another tenant's rows). Raw SQL bypasses the filter and must filter by tenant itself.
 - **Number series** (`src/MiniErp.Platform/Numbering/`): `INumberSeriesService.NextAsync(code)` is one atomic upsert in its own short transaction (gaps allowed, never duplicates).
+
+## Endpoint conventions (see `src/Modules/MiniErp.Catalog/Items/` as the reference)
+
+- One folder per feature inside a module: entity, request/response records (`*Contracts.cs`), validation, endpoints. All `internal`.
+- Each endpoint requires a permission (`.RequireAuthorization(Permissions.X)`) and returns typed results (`Results<Ok<T>, NotFound, ValidationProblem, ...>`), so OpenAPI lists every response.
+- Validation returns `TypedResults.ValidationProblem(errors)` keyed by field name; business conflicts return a Problem with a stable `code` extension (e.g. `catalog.duplicate_sku`).
+- Another tenant's id is simply not found by the filtered query, so it answers 404 (BR-13).
+- Updates use optimistic concurrency: responses carry `ETag` (the row's `xmin`); `PUT` requires `If-Match` (428 without it, 412 on a stale version) via `Platform/Http/ConcurrencyHeaders`.
+- Business operations are actions (`POST /items/{id}/block`), not field edits; nothing is deleted (BR-12).
+- Enums travel as names (`"Standard"`), money as `decimal` with 2 decimals (BR-10).
+- Tests: one class per feature under `tests/MiniErp.IntegrationTests/<Module>/`, fresh tenant ids per test, a cross-tenant test that tries every endpoint, and the business rule id in the test name.
 - **Inventory ledger** ([ADR-0004](docs/adr/0004-append-only-inventory-ledger.md)): append-only entries plus a balance projection updated in the same transaction.
 - **Transactional outbox** ([ADR-0005](docs/adr/0005-transactional-outbox.md)) for e-invoice submission; at-least-once delivery, idempotent handlers.
 - **Keycloak** ([ADR-0006](docs/adr/0006-keycloak-for-identity.md)) as OIDC provider; tests sign their own tokens (`tests/MiniErp.IntegrationTests/TestTokens.cs`).
@@ -81,7 +92,7 @@ src/MiniErp.Api/             API host: wires modules together, no business logic
   Hosting/                   observability (OpenTelemetry), health endpoints, OpenAPI bearer scheme
 src/MiniErp.Platform/        shared building blocks: module endpoint convention, Database/ (NpgsqlDataSource, ModuleDbContext, tenant interceptor, migration runner, health check), Security/ (JWT, permissions, tenant context, /api/platform/me), Numbering/ (number series), PlatformDbContext + Migrations/ (schema platform); later outbox
 dotnet-tools.json            local tools: dotnet-ef (run `dotnet tool restore` once)
-src/Modules/MiniErp.<Name>/  one project per module: Catalog, Inventory, Sales, Invoicing
+src/Modules/MiniErp.<Name>/  one project per module: Catalog (items), Inventory, Sales, Invoicing; each with its DbContext and Migrations/
 tests/MiniErp.ArchitectureTests/  module boundary rules (ADR-0001), checked on the compiled assemblies
 tests/MiniErp.IntegrationTests/   the real API in memory against PostgreSQL in Docker (Testcontainers)
 .github/workflows/ci.yml     build + test on every push to main and every pull request
@@ -103,10 +114,10 @@ Migrations (one set per module DbContext; the API project is the startup project
 
 ```bash
 dotnet tool restore
-dotnet ef migrations add <Name> --project src/MiniErp.Platform --startup-project src/MiniErp.Api --context PlatformDbContext --output-dir Migrations
+dotnet ef migrations add <Name> --project src/Modules/MiniErp.Catalog --startup-project src/MiniErp.Api --context CatalogDbContext --output-dir Migrations
 ```
 
-A module context needs an `IDesignTimeDbContextFactory` (see `PlatformDbContextDesignTimeFactory`) so `dotnet ef` can build it without a tenant.
+Platform uses `--project src/MiniErp.Platform --context PlatformDbContext`. A module context needs an `IDesignTimeDbContextFactory` (see `CatalogDbContextDesignTimeFactory`) so `dotnet ef` can build it without a tenant.
 
 | URL (development) | What |
 |---|---|

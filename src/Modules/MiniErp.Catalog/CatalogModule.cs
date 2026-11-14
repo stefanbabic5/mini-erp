@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using MiniErp.Catalog.Items;
 using MiniErp.Platform;
+using MiniErp.Platform.Database;
 
 namespace MiniErp.Catalog;
 
@@ -14,13 +16,16 @@ public static class CatalogModule
     /// <summary>Registers the module's services in the dependency injection container.</summary>
     public static IServiceCollection AddCatalogModule(this IServiceCollection services)
     {
+        services.AddModuleDbContext<CatalogDbContext>();
         return services;
     }
 
     /// <summary>Maps the module's endpoints under <c>/api/catalog</c>.</summary>
     public static IEndpointRouteBuilder MapCatalogModule(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapModuleGroup(Name);
+        endpoints.MapModuleGroup(Name)
+            .MapItemEndpoints();
+
         return endpoints;
     }
 }
