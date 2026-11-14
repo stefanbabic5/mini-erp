@@ -72,10 +72,14 @@ MiniErp.slnx                 solution (XML .slnx format)
 global.json                  pins the .NET SDK; opts dotnet test into Microsoft.Testing.Platform
 Directory.Build.props        shared build settings: net10.0, nullable, warnings as errors
 Directory.Packages.props     every NuGet version, with its licence (central package management)
+compose.yaml                 local infrastructure: PostgreSQL 18 and the OpenTelemetry dashboard
+.env.example                 optional overrides for compose.yaml (copy to the git-ignored .env)
 src/MiniErp.Api/             API host: wires modules together, no business logic
-src/MiniErp.Platform/        shared building blocks (module endpoint convention; later tenancy, outbox, number series)
+  Hosting/                   observability (OpenTelemetry) and health endpoints
+src/MiniErp.Platform/        shared building blocks: module endpoint convention, database (NpgsqlDataSource + health check); later tenancy, outbox, number series
 src/Modules/MiniErp.<Name>/  one project per module: Catalog, Inventory, Sales, Invoicing
 tests/MiniErp.ArchitectureTests/  module boundary rules (ADR-0001), checked on the compiled assemblies
+tests/MiniErp.IntegrationTests/   the real API in memory against PostgreSQL in Docker (Testcontainers)
 .github/workflows/ci.yml     build + test on every push to main and every pull request
 ```
 
@@ -84,12 +88,21 @@ Each module exposes only `<Name>Module` (with `Add<Name>Module` and `Map<Name>Mo
 ## Commands
 
 ```bash
+docker compose up -d                  # start PostgreSQL and the dashboard
 dotnet build                          # build everything
-dotnet test                           # run all tests (Microsoft.Testing.Platform)
+dotnet test                           # run all tests; integration tests need Docker running
 dotnet run --project src/MiniErp.Api  # start the API on http://localhost:5100
+docker compose down                   # stop the containers (add -v to delete the database volume)
 ```
 
-Phase 1 adds `docker compose` and migration commands here.
+| URL (development) | What |
+|---|---|
+| http://localhost:5100/scalar | API reference (Scalar UI over the OpenAPI document) |
+| http://localhost:5100/openapi/v1.json | OpenAPI document |
+| http://localhost:5100/health/live, /health/ready | liveness (process up) and readiness (PostgreSQL reachable) |
+| http://localhost:18888 | dashboard: logs, traces and metrics from the API |
+
+Errors are RFC 9457 Problem Details (`application/problem+json`). Telemetry is exported only when `OTEL_EXPORTER_OTLP_ENDPOINT` is set (the `http` launch profile sets it to the dashboard).
 
 ## Skill library
 

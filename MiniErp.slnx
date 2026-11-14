@@ -11,5 +11,6 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/MiniErp.ArchitectureTests/MiniErp.ArchitectureTests.csproj" />
+    <Project Path="tests/MiniErp.IntegrationTests/MiniErp.IntegrationTests.csproj" />
   </Folder>
 </Solution>

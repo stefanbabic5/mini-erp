@@ -8,6 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- The modules are ASP.NET Core libraries; the shared framework keeps Microsoft.Extensions.* on 10.0. -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\MiniErp.Platform\MiniErp.Platform.csproj" />
     <ProjectReference Include="..\..\src\Modules\MiniErp.Catalog\MiniErp.Catalog.csproj" />
     <ProjectReference Include="..\..\src\Modules\MiniErp.Inventory\MiniErp.Inventory.csproj" />

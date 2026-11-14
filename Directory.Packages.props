@@ -1,13 +1,42 @@
 <!--
   Central package management: every NuGet package version is declared once, here.
   Project files reference packages without a version. Before adding a package,
-  check its licence (ADR-0007) and note it in the pull request.
+  check its licence (ADR-0007), note it next to the package and in the pull request.
+  Keep packages on the major version that matches the target framework (net10.0).
 -->
 <Project>
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
+
+  <ItemGroup Label="Data">
+    <!-- PostgreSQL licence -->
+    <PackageVersion Include="Npgsql.DependencyInjection" Version="10.0.3" />
+  </ItemGroup>
+
+  <ItemGroup Label="API">
+    <!-- MIT -->
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.15" />
+    <!-- MIT -->
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.21.0" />
+  </ItemGroup>
+
+  <ItemGroup Label="Observability">
+    <!-- PostgreSQL licence -->
+    <PackageVersion Include="Npgsql.OpenTelemetry" Version="10.0.3" />
+    <!-- Apache-2.0 (all OpenTelemetry packages) -->
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.21.0" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.21.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.21.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.21.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.21.0" />
+  </ItemGroup>
+
   <ItemGroup Label="Testing">
+    <!-- MIT -->
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.15" />
+    <!-- MIT -->
+    <PackageVersion Include="Testcontainers.PostgreSql" Version="4.16.0" />
     <!-- BSD-3-Clause -->
     <PackageVersion Include="Shouldly" Version="4.3.0" />
     <!-- Apache-2.0. Runs on Microsoft.Testing.Platform (opted in through global.json). -->
