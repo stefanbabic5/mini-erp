@@ -34,10 +34,13 @@ public class HostingTests(ApiFactory api)
     [Fact]
     public async Task Readiness_probe_answers_503_when_postgres_is_unreachable_while_liveness_stays_healthy()
     {
-        // Same API, but pointed at a port where no database listens.
-        using var apiWithoutDatabase = api.WithWebHostBuilder(builder => builder.UseSetting(
-            $"ConnectionStrings:{DatabaseRegistration.ConnectionStringName}",
-            "Host=localhost;Port=1;Database=none;Username=none;Password=none;Timeout=2"));
+        // Same API, but pointed at a port where no database listens, and without migrating on
+        // start: in production the API must start and report "not ready" while the database is down.
+        using var apiWithoutDatabase = api.WithWebHostBuilder(builder => builder
+            .UseSetting(
+                $"ConnectionStrings:{DatabaseRegistration.ConnectionStringName}",
+                "Host=localhost;Port=1;Database=none;Username=none;Password=none;Timeout=2")
+            .UseSetting(DatabaseRegistration.MigrateOnStartupSetting, "false"));
         using var client = apiWithoutDatabase.CreateClient();
 
         var ready = await client.GetAsync("/health/ready", TestContext.Current.CancellationToken);

@@ -9,8 +9,14 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup Label="Data">
+    <!-- Apache-2.0 -->
+    <PackageVersion Include="EFCore.NamingConventions" Version="10.0.1" />
+    <!-- MIT. Design-time only (migrations), referenced by the API as startup project. -->
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.15" />
     <!-- PostgreSQL licence -->
     <PackageVersion Include="Npgsql.DependencyInjection" Version="10.0.3" />
+    <!-- PostgreSQL licence -->
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
   </ItemGroup>
 
   <ItemGroup Label="API">
