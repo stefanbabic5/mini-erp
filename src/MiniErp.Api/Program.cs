@@ -2,6 +2,7 @@ using MiniErp.Api.Hosting;
 using MiniErp.Catalog;
 using MiniErp.Inventory;
 using MiniErp.Invoicing;
+using MiniErp.Platform;
 using MiniErp.Platform.Database;
 using MiniErp.Platform.Security;
 using MiniErp.Sales;
@@ -25,6 +26,13 @@ builder.Services
 
 var app = builder.Build();
 
+// Development and tests bring the database schema up to date on start. Other environments
+// apply migrations as a separate deployment step instead.
+if (app.Configuration.GetValue<bool>(DatabaseRegistration.MigrateOnStartupSetting))
+{
+    await app.Services.MigrateModuleDatabasesAsync();
+}
+
 // Unhandled exceptions become a 500 Problem Details response without internal details;
 // error status codes without a body (404, 401, 403) get a Problem Details body too.
 app.UseExceptionHandler();
@@ -40,11 +48,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapHealthEndpoints();
-app.MapCurrentUserEndpoint();
+app.MapPlatformEndpoints();
 
 app.MapCatalogModule();
 app.MapInventoryModule();
 app.MapSalesModule();
 app.MapInvoicingModule();
 
-app.Run();
+await app.RunAsync();

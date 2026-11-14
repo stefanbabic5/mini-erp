@@ -116,7 +116,7 @@ The system is a **modular monolith** ([ADR-0001](adr/0001-modular-monolith.md)):
 
 ### 4.5 Platform
 - **Tenant**: `Id`, `Name`, `TaxId`.
-- **NumberSeries**: `TenantId`, `Code` (`SO`, `SHIP`, `INV`, `CM`, `CUST`), `Prefix`, `LastNo`, `Year` (where it resets yearly), `IsGapless`.
+- **NumberSeries**: `TenantId`, `Code`, `Prefix`, `Digits`, `LastNo`, `UpdatedAt`; key `(TenantId, Code)`. Phase 1 has the series where gaps are allowed (`CUST`, `SO`, `SHIP`): a tenant's series is created with its default format on first use, and an Admin can change prefix and digits (`/api/platform/number-series`). The gapless invoice series (`INV`, `CM`) with a yearly reset arrive in phase 3 ([ADR-0009](adr/0009-document-numbering.md)).
 - **OutboxMessage**: `Id`, `TenantId`, `Type`, `Payload` (jsonb), `OccurredAt`, `ProcessedAt`, `Attempts`, `LastError` ([ADR-0005](adr/0005-transactional-outbox.md)).
 - **IdempotencyRecord**: `TenantId`, `Key`, `RequestHash`, `ResponseStatus`, `ResponseBody`, `CreatedAt`.
 

@@ -7,8 +7,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Tests check the tenant guard directly on Platform's internal DbContext and entities. -->
+    <InternalsVisibleTo Include="MiniErp.IntegrationTests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EFCore.NamingConventions" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Npgsql.DependencyInjection" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
   </ItemGroup>
 
 </Project>

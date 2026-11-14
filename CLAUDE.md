@@ -54,7 +54,8 @@ Stefan is a Business Central / AL developer moving to .NET. He knows OOP well an
 
 - **Modular monolith** ([ADR-0001](docs/adr/0001-modular-monolith.md)): modules Catalog, Inventory, Sales, Invoicing, plus Platform. Each module owns its own PostgreSQL schema and `DbContext`, and exposes a small public contract. Modules never reference each other's internals; architecture tests enforce this.
 - **PostgreSQL + EF Core** ([ADR-0002](docs/adr/0002-postgresql-and-ef-core.md)), `xmin` as the concurrency token.
-- **Multi-tenancy** ([ADR-0003](docs/adr/0003-multi-tenancy.md)): tenant only from the token's `tenant_id` claim; global query filters; another tenant's id answers `404`.
+- **Multi-tenancy** ([ADR-0003](docs/adr/0003-multi-tenancy.md)): tenant only from the token's `tenant_id` claim; global query filters; another tenant's id answers `404`. Every module DbContext derives from `ModuleDbContext` (own schema, own migrations history, a tenant query filter on every `ITenantOwned` entity) and is registered with `AddModuleDbContext<T>()`, which adds `TenantSaveChangesInterceptor` (stamps the tenant on inserts, throws `CrossTenantWriteException` on writes to another tenant's rows). Raw SQL bypasses the filter and must filter by tenant itself.
+- **Number series** (`src/MiniErp.Platform/Numbering/`): `INumberSeriesService.NextAsync(code)` is one atomic upsert in its own short transaction (gaps allowed, never duplicates).
 - **Inventory ledger** ([ADR-0004](docs/adr/0004-append-only-inventory-ledger.md)): append-only entries plus a balance projection updated in the same transaction.
 - **Transactional outbox** ([ADR-0005](docs/adr/0005-transactional-outbox.md)) for e-invoice submission; at-least-once delivery, idempotent handlers.
 - **Keycloak** ([ADR-0006](docs/adr/0006-keycloak-for-identity.md)) as OIDC provider; tests sign their own tokens (`tests/MiniErp.IntegrationTests/TestTokens.cs`).
@@ -78,7 +79,8 @@ compose.yaml                 local infrastructure: PostgreSQL 18, Keycloak and t
 deploy/keycloak/             realm imported by Keycloak on start: tenants Alfa and Beta, one user per role
 src/MiniErp.Api/             API host: wires modules together, no business logic
   Hosting/                   observability (OpenTelemetry), health endpoints, OpenAPI bearer scheme
-src/MiniErp.Platform/        shared building blocks: module endpoint convention, Database/ (NpgsqlDataSource + health check), Security/ (JWT, permissions, tenant context, /api/platform/me); later outbox, number series
+src/MiniErp.Platform/        shared building blocks: module endpoint convention, Database/ (NpgsqlDataSource, ModuleDbContext, tenant interceptor, migration runner, health check), Security/ (JWT, permissions, tenant context, /api/platform/me), Numbering/ (number series), PlatformDbContext + Migrations/ (schema platform); later outbox
+dotnet-tools.json            local tools: dotnet-ef (run `dotnet tool restore` once)
 src/Modules/MiniErp.<Name>/  one project per module: Catalog, Inventory, Sales, Invoicing
 tests/MiniErp.ArchitectureTests/  module boundary rules (ADR-0001), checked on the compiled assemblies
 tests/MiniErp.IntegrationTests/   the real API in memory against PostgreSQL in Docker (Testcontainers)
@@ -93,9 +95,18 @@ Each module exposes only `<Name>Module` (with `Add<Name>Module` and `Map<Name>Mo
 docker compose up -d                  # start PostgreSQL, Keycloak and the dashboard
 dotnet build                          # build everything
 dotnet test                           # run all tests; integration tests need Docker running
-dotnet run --project src/MiniErp.Api  # start the API on http://localhost:5100
+dotnet run --project src/MiniErp.Api  # start the API on http://localhost:5100 (applies pending migrations in Development)
 docker compose down                   # stop the containers (add -v to delete the database volume)
 ```
+
+Migrations (one set per module DbContext; the API project is the startup project):
+
+```bash
+dotnet tool restore
+dotnet ef migrations add <Name> --project src/MiniErp.Platform --startup-project src/MiniErp.Api --context PlatformDbContext --output-dir Migrations
+```
+
+A module context needs an `IDesignTimeDbContextFactory` (see `PlatformDbContextDesignTimeFactory`) so `dotnet ef` can build it without a tenant.
 
 | URL (development) | What |
 |---|---|
