@@ -4,12 +4,12 @@ Guidance for Claude Code sessions in this repository.
 
 ## What this is
 
-**mini-erp** (working name) is a multi-tenant ERP backend on .NET: catalog → inventory → sales orders → shipments → invoices → e-invoice submission. It is modelled on how Microsoft Dynamics 365 Business Central posts documents. It is a **portfolio and learning project** for Stefan, not a product. Scope decisions optimise for showing medior-level backend engineering, not for features.
+**mini-erp** is a multi-tenant ERP backend on .NET: catalog → inventory → sales orders → shipments → invoices → e-invoice submission. It is modelled on how Microsoft Dynamics 365 Business Central posts documents. It is a **portfolio and learning project** for Stefan, not a product. Scope decisions optimise for showing medior-level backend engineering, not for features.
 
 - Specification (scope, domain model, business rules `BR-xx`, phases): [docs/specification.md](docs/specification.md)
 - Architecture decisions: [docs/adr/](docs/adr/README.md)
 
-**Status (2026-11-14):** phase 0, documentation only. No code, no git repository yet. The specification's questions are resolved (§11) and ADRs 0001–0009 are `Accepted`. Phase 1 starts after the git/GitHub setup.
+**Status (2026-11-14):** phase 1 in progress (specification §8). Design documents are merged; ADRs 0001–0009 are `Accepted`; ADR-0010 is `Proposed`. Public repository: https://github.com/stefanbabic5/mini-erp. Work lands through pull requests, squash-merged into `main`.
 
 ## Working agreements
 
@@ -48,7 +48,7 @@ Stefan is a Business Central / AL developer moving to .NET. He knows OOP well an
 - Compare with BC/AL concepts where that helps (see the BC column in specification §3).
 - Prefer explicit, readable code over clever or magic code. Stefan must be able to explain every line in an interview.
 - When there is a real design choice, present the options with a recommendation instead of choosing silently.
-- `odluke-za-intervju.md` in the repo root is Stefan's personal study file in Serbian: each accepted ADR explained simply, with the BC comparison and likely interview questions. When an ADR is accepted or superseded, update that file in the same step. It is not part of the repository: add it to `.git/info/exclude` when git is initialised.
+- Personal instructions (such as where Stefan's study notes live) are in `CLAUDE.local.md`, which is not part of the repository.
 
 ## Architecture in one screen
 
@@ -59,6 +59,11 @@ Stefan is a Business Central / AL developer moving to .NET. He knows OOP well an
 - **Transactional outbox** ([ADR-0005](docs/adr/0005-transactional-outbox.md)) for e-invoice submission; at-least-once delivery, idempotent handlers.
 - **Keycloak** ([ADR-0006](docs/adr/0006-keycloak-for-identity.md)) as OIDC provider; tests sign their own tokens.
 - **Stock reservation** uses optimistic concurrency with a retry of the whole unit of work ([ADR-0008](docs/adr/0008-stock-reservation-concurrency.md)). **Invoice numbers** are gapless through a row lock on the number series ([ADR-0009](docs/adr/0009-document-numbering.md)).
+
+## Prerequisites
+
+- .NET SDK 10
+- Docker with Linux containers (Docker Desktop with the WSL 2 backend on Windows; see [ADR-0010](docs/adr/0010-docker-desktop-for-local-containers.md))
 
 ## Commands
 
