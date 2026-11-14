@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using MiniErp.Api.Hosting;
 using MiniErp.Catalog;
 using MiniErp.Inventory;
@@ -14,6 +15,11 @@ builder.AddObservability();
 
 // Errors leave the API as RFC 9457 Problem Details (application/problem+json).
 builder.Services.AddProblemDetails();
+
+// Enums travel as names ("Standard"), not numbers, so the API is readable and adding an enum
+// member can't silently shift meanings.
+builder.Services.ConfigureHttpJsonOptions(options =>
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddOpenApi(options => options.AddDocumentTransformer<BearerSecuritySchemeTransformer>());
 builder.Services.AddMiniErpDatabase(builder.Configuration);
 builder.Services.AddMiniErpSecurity(builder.Configuration);
