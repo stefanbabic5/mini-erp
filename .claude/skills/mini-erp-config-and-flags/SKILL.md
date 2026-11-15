@@ -102,11 +102,11 @@ to it; `.env.example` lists them.
 Not overridable (fixed in the file): the dashboard ports `18888` (UI) and `4317` (OTLP),
 the image versions, the volume name `postgres-data`.
 
-| Image | Version (2026-11-15) |
-|---|---|
-| `postgres` | `18.7-alpine` |
-| `quay.io/keycloak/keycloak` | `26.8.2` |
-| `mcr.microsoft.com/dotnet/aspire-dashboard` | `13.6.5` |
+| Image | Version (2026-11-15) | Licence (comment above it in `compose.yaml`) |
+|---|---|---|
+| `postgres` | `18.7-alpine` | PostgreSQL licence |
+| `quay.io/keycloak/keycloak` | `26.8.2` | Apache-2.0 |
+| `mcr.microsoft.com/dotnet/aspire-dashboard` | `13.6.5` | MIT |
 
 **Trap: `.env` does not reach the API.** The API reads `appsettings.Development.json`,
 not `.env`. If you change `POSTGRES_PORT`, `POSTGRES_PASSWORD`, `POSTGRES_USER` or
@@ -154,8 +154,9 @@ Not exercised on 2026-11-15.
 | | `ImplicitUsings` | `enable` | common namespaces need no `using` |
 | | `TreatWarningsAsErrors` | `true` | a warning fails the build |
 | | `AnalysisLevel` | `latest` | newest analyzers |
+| (not set; SDK defaults for `net10.0`) | `NuGetAudit` / `NuGetAuditMode` / `NuGetAuditLevel` | `true` / `all` / `low` | every restore checks all packages, transitive ones included, for known vulnerabilities; with `TreatWarningsAsErrors` a finding fails restore and build. Print them: `dotnet msbuild src/MiniErp.Api/MiniErp.Api.csproj -getProperty:NuGetAudit -getProperty:NuGetAuditMode -getProperty:NuGetAuditLevel` |
 | `Directory.Packages.props` | `ManagePackageVersionsCentrally` | `true` | versions live only here; project files reference packages without a version |
-| `dotnet-tools.json` | `dotnet-ef` | `10.0.15` | local tool, restored with `dotnet tool restore` |
+| `dotnet-tools.json` | `dotnet-ef` | `10.0.15` | local tool (MIT), restored with `dotnet tool restore`; JSON without comments, so its licence is written in `CLAUDE.md`'s "Repository layout" |
 | `.gitattributes` | `* text=auto eol=lf` | | files are stored with LF, whatever the OS |
 
 Package versions on 2026-11-15 (licence in a comment above each one in the file): EF

@@ -13,14 +13,14 @@ description: >
   Covers the document registry, the code-change-to-document matrix, the ADR
   lifecycle with a skeleton, the specification's rules, the house style, and the
   known places where documents and code disagree. What the README may claim:
-  mini-erp-portfolio-claims.
+  mini-erp-claims-and-evidence.
 ---
 
 # mini-erp documents and writing
 
-In **mini-erp** the documents are part of the product: a reader (a recruiter, an
-interviewer, a later session) must be able to trust them without reading the code. A
-document that says more than the code does is a defect.
+In **mini-erp** the documents are part of the work: a reader (a contributor, a
+reviewer, a later session) must be able to trust them without reading the code. A
+document that says more than the code does is a defect (working agreement 4).
 
 Working agreements this skill implements (`CLAUDE.md`): **2. Decisions are written
 down**, **3. Business rules are traceable**, **6. Everything in the repository is in
@@ -40,13 +40,13 @@ BR-01 to BR-16.
 
 | Document | Purpose | Reader | Update when |
 |---|---|---|---|
-| `README.md` | what the project is, what it shows, how to run it, what works today, test counts, roadmap | a visitor with five minutes | a feature lands, a count changes, a phase's status changes. Only claims with proof (mini-erp-portfolio-claims) |
+| `README.md` | what the project is, what is built in, how to run it, what works today, test counts, roadmap | a visitor with five minutes | a feature lands, a count changes, a phase's status changes. Only claims with proof (mini-erp-claims-and-evidence) |
 | `docs/specification.md` | the intended behaviour of all four phases (its sections: §4 below) | someone who needs the intended behaviour | behaviour, a rule, a permission, an entity, a phase's scope or status changes |
 | `docs/adr/NNNN-*.md` | one significant decision each, with rejected alternatives | someone asking "why this way" | a new decision is taken; never to change an accepted one |
 | `docs/adr/README.md` | the ADR index, status values and template | | an ADR is added or changes status |
 | `CLAUDE.md` | working agreements, architecture in one screen, endpoint conventions, layout, commands, URLs | an AI session or a new contributor | a rule, a convention, the layout, a command or a URL changes |
 | `.claude/skills/*/SKILL.md` | runbooks that add the how, the checklists and the traps | a smaller model or a mid-level developer | a fact a skill states stops being true (each skill ends with re-verification commands) |
-| `Directory.Packages.props` | every package version with its licence in a comment | | a package is added or bumped |
+| `Directory.Packages.props`, `compose.yaml`, `CLAUDE.md` "Repository layout" | the licence of every package and image (in a comment) and of every local tool (in parentheses on the `dotnet-tools.json` line) | | a package, image or tool is added or bumped |
 | PR descriptions | what changed, new packages and licences, test evidence | Stefan at review; later, the history | every PR (shape in mini-erp-change-control §4) |
 | Code comments and XML doc comments | why, not what; the rule or ADR a type implements | the reader of the file | the code they describe changes |
 
@@ -63,11 +63,11 @@ change. A skill never overrides `CLAUDE.md`, the specification or an ADR.
 | New endpoint or feature | `README.md` "What works today"; specification §4 if an entity or field is new; `CLAUDE.md` only if a convention is new |
 | New or changed business rule | specification §6 (new id, never reused); the test name carries the id |
 | New permission or role mapping | specification §2 table (it must equal `RolePermissions` and `PermissionMatrixTests.Matrix`) |
-| New package, image or tool | `Directory.Packages.props` licence comment; PR table; specification §10 if it is a technology choice; an ADR if it is a design decision or an ADR-0007 exception |
+| New package, image or tool | the licence next to it (a comment in `Directory.Packages.props` or `compose.yaml`; for a tool, in parentheses on the `dotnet-tools.json` line of `CLAUDE.md`'s layout); a row in the PR's package table; specification §10 if it is a technology choice; an ADR only if it changes the architecture or is an exception to ADR-0007 (mini-erp-change-control §2) |
 | New module, project or top-level file | `CLAUDE.md` "Repository layout"; `README.md` architecture diagram if the picture changes |
 | New command, port or URL | `CLAUDE.md` "Commands" and its URL table; `README.md` quick start if a visitor needs it |
 | Test count changes | `README.md` "Tests" (both the total and the per-project table), after a run that shows it |
-| A phase finishes | specification §8 (dated "Done" note, as phase 1 has); `README.md` status line and roadmap; `CLAUDE.md` status line |
+| A phase finishes | specification §8 (dated "Done" note, as phase 1 has); `README.md` status line and roadmap; `CLAUDE.md` status line; the GitHub repository description (a repository setting: Stefan's go-ahead first; mini-erp-claims-and-evidence §1) |
 | A decision changes | a new ADR; old ADR's status line; `docs/adr/README.md` index; every document that described the old decision |
 | A question is settled | specification §11 (a row; the decision date is in the column header), removed from §12 |
 | A skill is added, renamed or removed | `CLAUDE.md` "Skill library" (the inventory and the planned list) |
@@ -84,10 +84,11 @@ git grep -n "121 tests\|121 passed\|\*\*121" -- README.md CLAUDE.md docs .claude
 
 **Does this need an ADR?** That gate is owned by mini-erp-change-control §2 (rows
 "Decision" and "New dependency"). In short: a pattern others will copy, a data-shape
-choice, a trade-off with a real alternative, a new kind of dependency, or anything
-that contradicts an accepted ADR needs one; a change that follows an existing ADR or
-convention (a new endpoint built like items) does not. This section is about writing
-it.
+choice, a trade-off with a real alternative, or anything that contradicts an accepted
+ADR needs one. A new dependency needs one only when it changes the architecture (as EF
+Core or Keycloak did) or is an exception to ADR-0007 (as ADR-0010 is). A change that
+follows an existing ADR or convention (a new endpoint built like items) needs none.
+This section is about writing it.
 
 **Lifecycle.** `Proposed` → `Accepted` → (`Superseded by ADR-XXXX` | `Deprecated`).
 
@@ -155,10 +156,11 @@ as ADR-0010 does ("This is an exception to ADR-0007, recorded here").
 
 ## 5. README
 
-Sections, in order: status note, "What it shows", "Quick start", "What works today",
+Sections, in order: the one-line description and a sentence on the project's aim,
+status note, "What is built in", "Quick start", "What works today",
 "Architecture" (Mermaid diagram plus ADR bullets), "Tests", "Documentation", "Roadmap",
 "License". The status note ends with the sentence "This README only claims what the
-code and its tests show." Keep that sentence true; mini-erp-portfolio-claims has the
+code and its tests show." Keep that sentence true; mini-erp-claims-and-evidence has the
 claim-to-proof table.
 
 The quick start must work from a fresh clone, copied as written. After changing it, run
@@ -207,25 +209,41 @@ Code comments:
 
 Commit messages and PR titles: an imperative English subject line, no trailing
 period, no prefix: `Add Sales customers with PIB validation and customer numbers`. The
-rest of the commit and PR shape is in mini-erp-change-control §4.
+rest of the commit and PR shape is in mini-erp-change-control §4. No AI attribution
+anywhere: no `Co-Authored-By` trailers, no "Generated with" footers, no "assisted by"
+tags (working agreement 5).
 
-## 7. Known disagreements between documents and code (2026-11-15)
+Describe the project by what it is: a personal project that rebuilds how an ERP such
+as Business Central posts documents, to get the hard parts of backend development
+right. Do not frame it, or any part of it, as something built to be shown to someone.
+(Two accepted ADRs, 0002 and 0007, and ADR-0006's context still carry older wording;
+accepted ADRs are not rewritten.)
 
-Do not copy these statements into new text as if they were true. Fixing one is a
-normal docs change that Stefan decides on.
+## 7. Known disagreements between documents and code
 
-| Document says | Reality |
+**None known on 2026-11-15.** The ten recorded at the end of phase 1 were resolved in
+one docs change that day:
+
+| Was | Resolved by |
 |---|---|
-| Specification §9: "Dependencies are scanned in CI" | `.github/workflows/ci.yml` has restore, build and test only |
-| Specification §7: "`.http` files in the repo cover the main flows" | there are no `.http` files |
-| Specification §9: "Business rules are covered by unit tests on the domain" | there is no unit test project; §10 lists NSubstitute, which is not a dependency |
-| Specification §9: "Structured logs carry the trace id, tenant id and user id" | nothing adds tenant or user id to the logs |
-| Specification §8, phase 1: "`docker compose up` starts the API, ..." | compose starts PostgreSQL, Keycloak and the dashboard; the API runs with `dotnet run` |
-| README: "Every endpoint has a test that tries to reach another tenant's data and gets 404" | true for item and customer endpoints; number-series endpoints are keyed by code and have a different isolation test |
-| `CLAUDE.md`: "Work lands through pull requests, squash-merged into `main`" | `git log` shows PRs #1-#9 as merge commits |
-| `CLAUDE.md` working agreement 2: "a new dependency" is a significant decision that gets an ADR | PRs #3-#6 added about fifteen packages with a licence table and no new ADR; only Docker Desktop got one (ADR-0010). The gate as practised: mini-erp-change-control §2 |
-| `CLAUDE.md` and README: a module exposes only its registration class and its `Contracts` namespace | EF Core's generated `MiniErp.<Name>.Migrations` classes are public too; the architecture test allows exactly that exception (PR #7) |
-| `CLAUDE.md` "Endpoint conventions": the last five bullets (inventory ledger, outbox, Keycloak, security, stock reservation) | they are architecture bullets that belong under "Architecture in one screen"; the content is right |
+| Specification §9: dependencies scanned in CI | the requirement was already met by NuGet Audit plus `TreatWarningsAsErrors` (checked 2026-11-15); §9 now says how |
+| Specification §7: `.http` files cover the main flows | §7 says they are planned |
+| Specification §9 and §10: unit tests on the domain, NSubstitute | §9 says business rules are proven by tests carrying the rule id and that unit tests are planned; §10 says NSubstitute is not a dependency yet; the phase 1 list says "architecture tests" instead of "unit tests" |
+| Specification §9: logs carry tenant id and user id | §9 says these are not added yet |
+| Specification §8: `docker compose up` starts the API | §8 says the API runs on the host with `dotnet run` |
+| README: every endpoint has a 404 cross-tenant test | the README says "every item and customer endpoint", and names the number series' own isolation test |
+| `CLAUDE.md`: squash-merged, while PRs #1-#10 were merge commits | the repository was switched to squash-only merges; the merge commits stay as history |
+| `CLAUDE.md`: every new dependency gets an ADR | working agreements 1 and 2 now say when it does (architecture change or ADR-0007 exception) |
+| `CLAUDE.md` and README: a module exposes only its registration class and `Contracts` | both now name the public EF Core migration classes too |
+| `CLAUDE.md`: architecture bullets under "Endpoint conventions" | moved to "Architecture in one screen", with the decided-but-not-built ones marked |
+
+Still true and not a document defect: the four module `.csproj` files have a comment
+saying only the registration class and `Contracts` may be public, without the
+migrations exception. That is a code comment; change it with the next code change in
+those projects.
+
+When you find a new disagreement, add a row here (document says / reality) and tell
+Stefan; do not fix a behaviour statement silently.
 
 Code weaknesses that no document contradicts (block and unblock without a version
 check, and so on) are listed in mini-erp-architecture-contract §7, not here.
@@ -244,7 +262,7 @@ check, and so on) are listed in mini-erp-architecture-contract §7, not here.
 
 | You need | Use |
 |---|---|
-| Whether a README or CV sentence is allowed | mini-erp-portfolio-claims |
+| Whether a README or other document's sentence is allowed | mini-erp-claims-and-evidence |
 | Branch, commit, PR and dependency gates | mini-erp-change-control |
 | The content of the architecture, not how to document it | mini-erp-architecture-contract |
 | Commands that belong in a document, verified | mini-erp-build-and-run |
@@ -260,5 +278,5 @@ grep -n "^| \*\*BR-" docs/specification.md | tail -1  # latest business rule id
 grep -n "^## " README.md CLAUDE.md                   # section lists in §5 and §2
 grep -n "Status:" docs/specification.md docs/adr/*.md # statuses and dates
 git grep -n "—" -- README.md CLAUDE.md docs          # em dashes (only the ADR template has one)
-ls .github/workflows/ ; git ls-files "*.http"        # §7: dependency scan, .http files
+git ls-files "*.http"                               # §7: .http files
 ```

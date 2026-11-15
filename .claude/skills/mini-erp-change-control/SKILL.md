@@ -3,7 +3,8 @@ name: mini-erp-change-control
 description: >
   Change control for the mini-erp repository. Load this BEFORE creating or naming a
   branch, proposing a commit, pushing, opening a pull request, writing a PR
-  description, when CI is red, after a PR is merged, adding or bumping a NuGet
+  description, when CI is red, after a PR is merged or when cleaning up branches,
+  adding or bumping a NuGet
   package, container image or tool,
   changing a business rule (BR-xx), a permission, a table shape or a migration, or
   deciding whether a change needs an ADR. Covers the non-negotiable rules with the
@@ -22,19 +23,19 @@ How a change is classified, gated and shipped in **mini-erp**, a public, MIT-lic
 multi-tenant ERP backend on .NET 10 (https://github.com/stefanbabic5/mini-erp). One
 maintainer, **Stefan (stefanbabic5)**, reviews and merges every pull request himself.
 The source of the rules is `CLAUDE.md` ("Working agreements"); this skill adds the
-reasons, the checklists and the traps. Two things below are **practice seen in the
-history, not text in `CLAUDE.md`**: rule 8 (no AI attribution) and the planted-bug
-check (§6). They are marked where they appear.
+reasons, the checklists and the traps. One thing below is **practice seen in the
+history, not text in `CLAUDE.md`**: the planted-bug check (§6).
 
 Two facts shape everything below (verified 2026-11-15):
 
 1. **Nothing on GitHub enforces the rules.** `main` has no branch protection
    (`gh api repos/stefanbabic5/mini-erp/branches/main/protection` answers "Branch not
    protected"). A red CI run does not block a merge, and a direct push to `main` would
-   succeed. Discipline is the gate.
-2. **The repository is a portfolio piece.** Its value is that every claim in it can be
-   checked. A change that makes a document say more than the code proves is a defect,
-   even if every test passes.
+   succeed. Discipline is the gate. (What GitHub does enforce since 2026-11-15: a PR
+   can only be squash-merged, and its branch is deleted after the merge.)
+2. **The repository is public and claims only what it proves** (working agreement 4).
+   A change that makes a document say more than the code proves is a defect, even if
+   every test passes.
 
 Terms used below, defined once:
 
@@ -43,7 +44,8 @@ Terms used below, defined once:
 - **BR-xx**: a business rule id from `docs/specification.md` §6.
 - **OSI licence**: an open-source licence approved by the Open Source Initiative (MIT,
   Apache-2.0, BSD, PostgreSQL).
-- **Squash merge**: GitHub merges a PR as one commit on `main`.
+- **Squash merge**: GitHub merges a PR as one commit on `main`. Here that commit takes
+  the PR's title as its subject and the PR's description as its body.
 - **Planted-bug check**: breaking the code on purpose to see the new tests fail, then
   restoring it (§6).
 
@@ -53,14 +55,14 @@ Do not relax any of these unless Stefan says so in the current conversation.
 
 | # | Rule | Why |
 |---|---|---|
-| 1 | Never commit to `main`. Work on a branch. | `main` is what a recruiter clones; every change must arrive through a PR Stefan has read. Nothing on GitHub prevents a direct push, so this rule is the only guard. |
-| 2 | Never commit, push, create a remote or open a PR without Stefan's explicit go-ahead **in the current conversation**. | Stefan must be able to explain every line in an interview. An approval given for one change does not carry over to the next. |
+| 1 | Never commit to `main`. Work on a branch. | `main` is what everyone who clones the repository gets; every change must arrive through a PR Stefan has read. Nothing on GitHub prevents a direct push, so this rule is the only guard. |
+| 2 | Never commit, push, create a remote or open a PR without Stefan's explicit go-ahead **in the current conversation**. | Stefan must be able to explain every line (working agreement 7). An approval given for one change does not carry over to the next. |
 | 3 | Free dependencies only ([ADR-0007](../../../docs/adr/0007-free-dependencies-only.md)). Never add MediatR, AutoMapper, MassTransit v9+, FluentAssertions v8+, NServiceBus or a paid cloud service. | The project has no budget, and several popular .NET libraries went commercial in 2025. A pinned major version cannot become paid later. |
-| 4 | A significant decision gets an ADR; an `Accepted` ADR is never rewritten. | The ADRs are the interview material: each one shows the alternatives that were rejected. Rewriting history destroys that. |
+| 4 | A significant decision gets an ADR; an `Accepted` ADR is never rewritten. | The ADRs record why, including the alternatives that were rejected. Rewriting one loses that history; a changed decision is a new ADR. |
 | 5 | A test that proves a business rule carries the rule id in its name (`BR13_...`). A new rule gets a new id; ids are never reused. | Any rule can be traced to its proof with one search. |
 | 6 | Never say something works without running it. Report results as they are. | "Evidence over claims" is working agreement 4. A PR description that says "121 passed" must come from a real run. |
 | 7 | Everything in the repository is in English. | Code, comments, documents, commit messages, PR text. (Conversation with Stefan is in Serbian; that is not repository content.) |
-| 8 | No AI attribution in commits or PR descriptions. | The maintainer's practice: no commit on `main` and no PR #1-#9 carries a `Co-Authored-By` trailer or a "Generated with" footer. Keep it that way. |
+| 8 | Commit messages, PR descriptions, code and documents contain no AI attribution: no `Co-Authored-By` trailers, no "Generated with" footers, no "assisted by" tags. | `CLAUDE.md`, working agreement 5. With squash merges the PR description becomes the commit body on `main`, so a footer in a PR would land in the history. |
 
 ## 2. Classify the change first
 
@@ -68,7 +70,7 @@ Do not relax any of these unless Stefan says so in the current conversation.
 |---|---|---|
 | **Docs only** | README wording, a specification clarification, a skill (never the text of an `Accepted` ADR) | Links and commands in the changed text re-checked. Still a branch and a PR. |
 | **Feature inside the conventions** | a new endpoint in an existing module, built like `src/Modules/MiniErp.Catalog/Items/` | Tests per mini-erp-testing-and-qa (including the cross-tenant test), specification updated in the same change, `dotnet build` and `dotnet test` green, planted-bug check. |
-| **New dependency or major version bump** | a NuGet package, a container image, a local tool | The licence check in §5, the licence comment in `Directory.Packages.props`, a "New packages and licences" table in the PR. **ADR or not:** `CLAUDE.md` lists "a new dependency" among the decisions that get an ADR; in practice (PRs #3-#6) packages that carry out an existing ADR were added with the licence table and no new ADR. So: always an ADR for a new kind of dependency or an exception to ADR-0007; for anything else ask Stefan rather than decide. |
+| **New dependency or major version bump** | a NuGet package, a container image, a local tool | The licence check in §5, a row in the PR's "New packages and licences" table, and the licence written next to it: a comment in `Directory.Packages.props` (package) or `compose.yaml` (image), or in parentheses on the `dotnet-tools.json` line of `CLAUDE.md`'s "Repository layout" (local tool). **An ADR only when** the dependency changes the architecture (as EF Core or Keycloak did) or is an exception to ADR-0007 (as ADR-0010 is) (`CLAUDE.md`, working agreements 1 and 2). If unsure which, ask Stefan. |
 | **Decision** | a new pattern, a data-shape choice, a trade-off, anything that changes or contradicts an accepted ADR | Options and a recommendation to Stefan first. Then a new ADR (`Proposed`, then `Accepted` by Stefan). If it replaces an old one, the old one's status line becomes `Superseded by ADR-XXXX`; its text stays. How to write it: mini-erp-docs-and-writing §3. |
 | **Business rule change** | a new BR, a changed BR, a new permission or role mapping | Stefan's agreement on the rule before coding it (a changed rule changes behaviour). Specification §6 (or §2 for permissions) updated in the same change; a test with the id in its name. A permission touches four places: mini-erp-add-feature §7. |
 | **Schema change** | a new table, column, index, or changed mapping | A new migration for that module's DbContext (never edit a migration that is already on `main`), the model-and-migrations check clean. Commands: mini-erp-add-feature §4. |
@@ -150,12 +152,21 @@ Phase N, step M: <one line>.
 **Merging is Stefan's.**
 
 - Never merge a PR and never enable auto-merge.
-- `CLAUDE.md` says PRs are squash-merged; `git log` on `main` shows PRs #1-#9 as merge
-  commits (`Merge pull request #9 from ...`). Do not assume a branch's commits were
-  collapsed.
-- After a merge, Stefan says so. Then update local `main`: `git switch main`, `git pull`.
-- Deleting the merged branch (local or remote) needs his go-ahead like any other
-  git change.
+- Since 2026-11-15 the repository allows **only squash merges** (merge commits and
+  rebase merges are switched off), the squash commit takes the PR's title and
+  description, and GitHub deletes the branch after the merge. History: PRs #1-#10 went
+  in as merge commits (`Merge pull request #10 from ...`), before the switch.
+- After a merge, Stefan says so. Then, when he asks for the clean-up:
+  1. `git switch main` and `git pull`.
+  2. Check the branch has nothing that is not on `main`. After a squash merge
+     `git log main..<branch>` always lists the branch's commits (they were collapsed into
+     a new one), so compare the content instead: `git diff <branch> main` must be empty
+     for the files the PR touched, and no commit on the branch may be newer than the
+     merge. If anything is left over, stop and tell Stefan.
+  3. `git branch -D <branch>` (`-d` refuses, because Git does not see a squash as a
+     merge).
+  4. `git push origin --delete <branch>` only if the remote branch still exists (GitHub
+     normally deleted it already); `git fetch --prune`.
 
 **CI.** One job, `build-and-test`, runs on every push to `main` and every PR to `main`
 (its commands: mini-erp-build-and-run §5). Check it with `gh pr checks <number>`. A red
@@ -173,14 +184,25 @@ it on the same branch, and tell Stefan.
    ([ADR-0010](../../../docs/adr/0010-docker-desktop-for-local-containers.md) is the one
    existing example).
 3. Tell Stefan the package, version and licence when proposing it. Wait for agreement.
-4. Add the version to `Directory.Packages.props` in the right `ItemGroup`, with the
-   licence in a comment above it. Reference it from the project file **without** a
-   version (central package management).
+4. Write the licence next to it:
+   - **package**: the version in `Directory.Packages.props` in the right `ItemGroup`,
+     the licence in a comment above it; the project file references it **without** a
+     version (central package management);
+   - **container image**: a comment with the licence above the `image:` line in
+     `compose.yaml` (and the same image in `ApiFactory.cs` if it is PostgreSQL);
+   - **local tool**: `dotnet-tools.json` cannot hold comments, so add the licence in
+     parentheses on the `dotnet-tools.json` line of `CLAUDE.md`'s "Repository layout"
+     (`local tools: dotnet-ef (MIT)`).
 5. Keep the package on the major version that matches `net10.0`. A minor or patch
    bump inside the pinned major needs no licence check (`CLAUDE.md` asks for one when
    adding a package or bumping a major), but it is still a PR and is named in it.
-6. List it in the PR's "New packages and licences" table.
-7. A cloud-specific service is allowed only behind an interface that has a local
+6. List it in the PR's "New packages and licences" table (packages, images and tools).
+7. Restore must stay clean: NuGet Audit checks every package, transitive ones
+   included, on each restore, and a known vulnerability fails restore and build
+   (`error NU190x`). Do not silence it with `NoWarn`, `WarningsNotAsErrors` or
+   `NuGetAuditSuppress` without Stefan's agreement; upgrade instead
+   (mini-erp-build-and-run §7).
+8. A cloud-specific service is allowed only behind an interface that has a local
    implementation running in Docker.
 
 Hand-written code replaces the banned libraries: plain handler methods instead of a
@@ -214,7 +236,7 @@ If nothing fails, the tests do not prove the rule. Fix the tests before the PR.
   carries a tenant condition (ADR-0003); that part is not negotiable.
 - Remove or weaken a test to make a change pass.
 - Raise a number in the README (test counts, claims) without a run that shows it. See
-  mini-erp-portfolio-claims §1.
+  mini-erp-claims-and-evidence §1.
 - Change a business rule, a permission mapping or other behaviour silently: agree it
   with Stefan first (working agreement 7).
 
@@ -226,7 +248,7 @@ If nothing fails, the tests do not prove the rule. Fix the tests before the PR.
 | Which tests a change needs and how to write them | mini-erp-testing-and-qa |
 | The ADR template, the specification's structure, house style | mini-erp-docs-and-writing |
 | Why the architecture is the way it is | mini-erp-architecture-contract |
-| What the README or a CV may claim | mini-erp-portfolio-claims |
+| What the README or another document may claim | mini-erp-claims-and-evidence |
 
 ## Provenance and maintenance
 
@@ -235,7 +257,8 @@ PRs #1-#9. Re-verify what may drift:
 
 ```bash
 gh api repos/stefanbabic5/mini-erp/branches/main/protection   # "Branch not protected" as of 2026-11-15
-git log --oneline -12 main                                    # merge commits or squash commits?
+git log --oneline -12 main                                    # merge commits up to PR #10, squash commits after it
+gh api repos/stefanbabic5/mini-erp --jq '{allow_squash_merge,allow_merge_commit,allow_rebase_merge,delete_branch_on_merge,squash_merge_commit_title,squash_merge_commit_message}'
 gh pr list --state merged --limit 20                          # branch prefixes in use
 cat .github/workflows/ci.yml                                  # CI steps and triggers
 grep -n "Version=" Directory.Packages.props                   # pinned packages

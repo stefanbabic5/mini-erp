@@ -2,14 +2,16 @@
 
 A multi-tenant ERP backend on .NET 10: **catalog → inventory → sales orders → shipments → invoices → e-invoice submission**, modelled on how Microsoft Dynamics 365 Business Central posts documents and rebuilt from scratch.
 
+A personal project whose aim is to get the hard parts of backend development right: concurrency, transactional integrity, isolation between companies, and resilience to an unreliable external system.
+
 > **Status:** phase 1 of 4 is complete: the foundation, authentication and tenant isolation, number series, items and customers. Inventory and sales orders come next ([roadmap](#roadmap)). This README only claims what the code and its tests show.
 
-## What it shows
+## What is built in
 
-- **Tenant isolation you can't forget:** several companies share one database. The tenant comes only from the access token; an EF Core query filter adds it to every query and a `SaveChanges` interceptor refuses writes to another tenant's rows. Every endpoint has a test that tries to reach another tenant's data and gets 404.
+- **Tenant isolation you can't forget:** several companies share one database. The tenant comes only from the access token; an EF Core query filter adds it to every query and a `SaveChanges` interceptor refuses writes to another tenant's rows. Every item and customer endpoint has a test that tries to reach another tenant's data and gets 404; the number series have their own isolation test.
 - **Secure by default:** every endpoint requires an authenticated user with a tenant unless it explicitly opts out; endpoints require *permissions*, and roles map to permissions in one place.
 - **No lost updates:** responses carry an `ETag` (PostgreSQL's row version); updates need `If-Match`, and a stale version answers 412 instead of overwriting someone else's change.
-- **Correct under concurrency:** document numbers come from one atomic upsert; a test fires 50 parallel requests and gets exactly 50 distinct, consecutive numbers.
+- **Correct under concurrency:** numbers from a number series (customer numbers today) come from one atomic upsert; a test fires 50 parallel requests and gets exactly 50 distinct, consecutive numbers.
 - **Module boundaries enforced by tests:** a modular monolith whose architecture tests fail the build when a module reaches into another.
 - **Real infrastructure in tests:** integration tests run the real API against PostgreSQL in Docker (Testcontainers), with tokens signed by the tests, so CI needs nothing but Docker.
 
@@ -83,7 +85,7 @@ flowchart LR
   api -.->|"OTLP"| dashboard["Telemetry dashboard"]
 ```
 
-- **Modular monolith** ([ADR-0001](docs/adr/0001-modular-monolith.md)): each module owns its PostgreSQL schema, `DbContext` and migrations, and exposes only its registration class; architecture tests enforce it.
+- **Modular monolith** ([ADR-0001](docs/adr/0001-modular-monolith.md)): each module owns its PostgreSQL schema, `DbContext` and migrations, and exposes only its registration class (plus the migration classes EF Core generates); architecture tests enforce it.
 - **PostgreSQL + EF Core** ([ADR-0002](docs/adr/0002-postgresql-and-ef-core.md)) with `xmin` as the row version.
 - **Multi-tenancy** ([ADR-0003](docs/adr/0003-multi-tenancy.md)): shared tables with a tenant column, query filters for reads, an interceptor for writes.
 - **Keycloak** ([ADR-0006](docs/adr/0006-keycloak-for-identity.md)) as identity provider; the API only validates tokens.

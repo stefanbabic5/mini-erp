@@ -210,9 +210,9 @@ Stated plainly, so nobody discovers them by surprise or claims the opposite.
    while `items` has one unique index; a second one would produce a wrong message.
    Customers check the constraint name (`ix_customers_tenant_id_tax_id`), which in turn
    depends on the snake_case naming convention.
-4. **Three requirements of specification §9 are not met**: unit tests on the domain,
-   tenant and user id in the logs, a dependency scan in CI. The list of places where
-   documents say more than the code does is owned by mini-erp-docs-and-writing §7.
+4. **Two requirements of specification §9 are not met yet** (§9 says so): unit tests
+   on the domain, and tenant and user id in the logs. Places where documents say more
+   than the code does are tracked in mini-erp-docs-and-writing §7.
 5. **Migrations run at start-up in Development only.** `Program.cs` says other
    environments apply them "as a separate deployment step"; that step does not exist,
    because there is no deployment.
