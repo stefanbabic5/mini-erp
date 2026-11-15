@@ -96,6 +96,7 @@ src/Modules/MiniErp.<Name>/  one project per module: Catalog (items), Sales (cus
 tests/MiniErp.ArchitectureTests/  module boundary rules (ADR-0001), checked on the compiled assemblies
 tests/MiniErp.IntegrationTests/   the real API in memory against PostgreSQL in Docker (Testcontainers)
 .github/workflows/ci.yml     build + test on every push to main and every pull request
+.claude/skills/              skill library: one runbook per folder (see "Skill library" below)
 ```
 
 Each module exposes only `<Name>Module` (with `Add<Name>Module` and `Map<Name>Module`) and types in `MiniErp.<Name>.Contracts`; everything else is `internal`. A module never references another module's project.
@@ -138,4 +139,26 @@ Errors are RFC 9457 Problem Details (`application/problem+json`). Telemetry is e
 
 ## Skill library
 
-Not created yet. With phase 1 complete, a `.claude/skills/` library is generated next, in its own session, grounded in this code, its tests and its git history. Until it exists, this file is the only project guide.
+`.claude/skills/` holds runbooks grounded in this code, its tests and its git history as of the end of phase 1 (2026-11-15). This file states the rules; a skill adds the how, the checklists and the traps. If a skill and this file disagree, this file wins and the skill is fixed.
+
+| Skill | Load it for |
+|---|---|
+| `mini-erp-change-control` | branches, commits, pull requests, the licence check for a dependency, whether a change needs an ADR, the planted-bug check |
+| `mini-erp-architecture-contract` | why the system is built this way, the invariants with the test that proves each, what is decided but not built, open design questions |
+| `mini-erp-build-and-run` | fresh clone, build, test, run, tokens for the demo users, local URLs, traps |
+| `mini-erp-config-and-flags` | every setting, port, version and constant, and how to add a setting |
+| `mini-erp-add-feature` | the recipe for an entity, endpoint, migration, permission or a module's first DbContext, with C# idioms explained for a Business Central developer |
+| `mini-erp-testing-and-qa` | the fixtures, the required tests per feature, the cross-tenant test, the standard for a concurrency proof, which rules have a test |
+| `mini-erp-docs-and-writing` | which document to update when, the ADR lifecycle, house style, known disagreements between documents and code |
+| `mini-erp-portfolio-claims` | what the README or a CV may claim, and the proof behind each claim |
+
+Routes: a feature needs `change-control` → `add-feature` → `testing-and-qa` → `docs-and-writing` → `portfolio-claims`; a change in `src/MiniErp.Platform` starts with `architecture-contract`; anything that fails to build, run or connect starts with `build-and-run`.
+
+Planned, not written (each waits for something real to ground it):
+
+| Skill | Waits for |
+|---|---|
+| `mini-erp-stock-reservation-campaign` | the start of phase 2: a decision-gated runbook for stock reservation under concurrency and the inventory ledger (ADR-0004, ADR-0008) |
+| `mini-erp-debugging-playbook`, `mini-erp-failure-archaeology` | real failure history; phase 1 has no reverts and no incidents to record |
+| `mini-erp-domain-reference` | phases 2 to 4 putting posting, the ledger and e-invoicing into code |
+| `mini-erp-diagnostics-and-tooling` | measurements to interpret (traces, the phase 4 load test) |
