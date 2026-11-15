@@ -337,7 +337,7 @@ probes and Problem Details (`HostingTests`), module boundaries (`ModuleBoundaryT
   the open, with the reason in the PR.
 - Do the planted-bug check for new behaviour and report it in one line.
 - Counts in `README.md` change only after a run that shows the new count
-  (mini-erp-portfolio-claims).
+  (mini-erp-claims-and-evidence).
 
 ## 8. Traps
 
@@ -361,7 +361,7 @@ probes and Problem Details (`HostingTests`), module boundaries (`ModuleBoundaryT
 | How to write the feature under test | mini-erp-add-feature |
 | What an invariant is and why it exists | mini-erp-architecture-contract |
 | What to write in the PR, the planted-bug procedure | mini-erp-change-control |
-| Whether a README or CV sentence is backed by a test | mini-erp-portfolio-claims |
+| Whether a README or other document's sentence is backed by a test | mini-erp-claims-and-evidence |
 
 ## Provenance and maintenance
 

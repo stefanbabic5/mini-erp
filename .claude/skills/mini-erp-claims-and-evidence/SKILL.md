@@ -1,35 +1,39 @@
 ---
-name: mini-erp-portfolio-claims
+name: mini-erp-claims-and-evidence
 description: >
-  What may be claimed about mini-erp in public, and the proof behind each claim. Load
-  this BEFORE editing the README's status note, "What it shows", "What works today",
-  "Tests" or "Roadmap" sections; before writing a CV bullet, LinkedIn text, a cover
-  letter line, an interview answer or a repository description about this project;
-  before raising any number (test counts, parallel requests, ADR count); when a
-  feature lands and you want to say so; when asked "can we say X", "is X true yet",
-  "what does this project prove", "what should I not claim"; and when reviewing text
-  for overstatement. Covers the rule for a claim, the claim-to-proof table with the
-  command that reproduces each proof, claims that are not allowed yet and what would
-  unlock them, how to word a claim honestly, and CV-ready statements that are true on
-  the date written. Not for document mechanics (mini-erp-docs-and-writing) or for
-  writing the tests that create proof (mini-erp-testing-and-qa).
+  The project rule "evidence over claims" for mini-erp: what the README, the
+  specification, CLAUDE.md, a skill, a PR description or the GitHub repository
+  description may claim, and which test, measurement or code proves each claim.
+  Load this BEFORE editing the README's status note, "What is built in", "What works
+  today", "Tests" or "Roadmap" sections; before writing that something works, is
+  proven, is correct under concurrency or is isolated per tenant; before raising any
+  number (test counts, parallel requests, ADR count); when a feature lands and a
+  document should say so; when asked "can we say X", "is X true yet", "what does
+  this project prove", "what is not built yet"; and when reviewing any text for
+  overstatement. Covers the rule for a claim, the claim-to-proof table with the
+  command that reproduces each proof, claims not allowed yet and what would unlock
+  them, and how to word a claim. Document mechanics: mini-erp-docs-and-writing. Writing
+  the tests that create proof: mini-erp-testing-and-qa.
 ---
 
-# mini-erp portfolio claims
+# mini-erp claims and evidence
 
-**mini-erp** exists to show backend engineering at medior level to someone who may
-check. Its README says: "This README only claims what the code and its tests show."
-`CLAUDE.md` makes that a rule: "The README may only claim what a test, a measurement or
-the code proves" (working agreement 4). This skill is the ledger behind that sentence.
+`CLAUDE.md` working agreement 4, "Evidence over claims", says: "The README, the
+specification and every other document may only claim what a test, a measurement or
+the code proves; something decided but not built is labelled as such." The README
+repeats it: "This README only claims what the code and its tests show." This skill is
+the ledger behind those sentences.
 
-An interviewer who finds one claim that does not hold stops trusting the rest. An
-honest "not built yet, here is the decision record" is worth more than an overstated
-feature.
+A reader who finds one claim that does not hold stops trusting the rest of the
+documents. An honest "not built yet, here is the decision record" is worth more than
+an overstated feature, and it keeps the next session from building on something that
+is not there.
 
 Terms, defined once:
 
-- **Claim**: any statement about what the project does or shows, in the README, a CV,
-  a profile or a conversation.
+- **Claim**: any statement about what the project does or proves, in the README, the
+  specification, `CLAUDE.md`, a skill, a PR description, a commit message or the
+  GitHub repository description.
 - **Proof**: a test that fails when the claim is false, a measurement with its command
   and date, or code that can be pointed to.
 - **Decided, not built**: there is an accepted ADR or a specification section, and no
@@ -51,6 +55,15 @@ A claim may be made when all four hold:
 
 If a claim fails one of these, either narrow it until it passes, or label it:
 "planned (phase 2)", "decided in ADR-0008, not built yet".
+
+**The GitHub repository description is a claim too.** It is the first sentence a
+visitor reads, and nothing in the repository checks it. On 2026-11-15 it reads:
+"Multi-tenant ERP backend on .NET 10 and PostgreSQL that rebuilds how Business
+Central posts documents. Phase 1 of 4 done: tenancy, auth, number series, items,
+customers." Update it in the same step that marks a phase done in specification §8
+and the README (changing it is a repository setting: Stefan's go-ahead first), and
+never let it name something that is only decided. Read it with
+`gh api repos/stefanbabic5/mini-erp --jq .description`.
 
 ## 2. Claims that hold today, with their proof
 
@@ -79,7 +92,8 @@ unless another command is given.
 | Readiness fails while PostgreSQL is unreachable, liveness stays up | `Readiness_probe_answers_503_when_postgres_is_unreachable_while_liveness_stays_healthy` | |
 | One-command local start; a fresh clone runs | PR #9 describes the fresh-clone check done on 2026-11-14 | a manual check, not automated; repeat it (mini-erp-build-and-run §2) before repeating the claim after changes to compose or the quick start |
 | Ten ADRs, each with rejected alternatives | `ls docs/adr/` | ADR-0004, ADR-0005 and ADR-0008 describe things not built yet, and ADR-0009 is half built (§3) |
-| Free dependencies only, every package with its licence listed | `Directory.Packages.props` | Docker Desktop is a recorded exception (ADR-0010) |
+| Free dependencies only, every package, image and tool with its licence listed | `Directory.Packages.props`, the comments in `compose.yaml`, `CLAUDE.md` "Repository layout" for `dotnet-ef` | Docker Desktop is a recorded exception (ADR-0010) |
+| Dependencies, transitive ones included, are checked for known vulnerabilities, and a finding fails the build locally and in CI | NuGet Audit defaults for `net10.0` plus `TreatWarningsAsErrors`; checked 2026-11-15 with two throwaway projects (a direct and a transitive vulnerable `Newtonsoft.Json`) that failed restore and `build --no-restore -c Release` with `error NU1903` | the CI half follows from CI running the same `dotnet restore` with the same SDK and settings; it was not observed on a GitHub runner. Repeat the probe after changing `global.json`, `Directory.Build.props` or any `NuGetAudit*` / `WarningsNotAsErrors` setting |
 | 121 tests: 9 architecture, 112 integration | `dotnet test` on 2026-11-15 | quote the run total, not the `--list-tests` count (112; why: mini-erp-build-and-run §5). Current totals are owned by mini-erp-testing-and-qa |
 | OpenTelemetry logs, traces and metrics to a local dashboard | `ObservabilityRegistration.cs`; PR #4's manual check | no automated test; logs do not carry tenant or user id |
 
@@ -98,16 +112,12 @@ are the goals in specification §1.
 | "Idempotent POSTs" (BR-14) | not built | phase 2 |
 | "Handles N requests per second", any latency or throughput number | no load test has been run | phase 4: k6 run with the numbers and the command published |
 | "Row-level security" | a phase 4 stretch item | policies plus a test with raw SQL |
-| "Every endpoint has a 404 cross-tenant test" (as an absolute) | number-series endpoints are keyed by code and are covered by a different test (`BR13_one_tenants_change_is_invisible_to_another_tenant`); `/api/platform/me` has no id | either say "every endpoint that takes an id", or word it per feature |
-| "Unit and integration tests" | there is no unit test project | a unit test project |
-| "Dependency scanning in CI", "structured logs with tenant and user id" | the specification asks for them; neither exists | the CI step; the log scope |
+| "Every endpoint has a 404 cross-tenant test" (as an absolute) | number-series endpoints are keyed by code and are covered by a different test (`BR13_one_tenants_change_is_invisible_to_another_tenant`); `/api/platform/me` has no id | either say "every endpoint that takes an id", or word it per feature (the README does since 2026-11-15) |
+| "Unit and integration tests" | there is no unit test project (specification §9 marks it planned) | a unit test project |
+| "Structured logs with tenant and user id" | the specification asks for it and marks it not in place yet | the log scope |
 | "Production-ready", "deployed", "used by" | it runs locally only; no hosting, no users | not a goal before phase 4, and then only what is true |
 | "Complete ERP", "invoicing", "sales orders" as existing features | Inventory and Invoicing are empty modules; Sales has customers only | the phase that builds them |
 | "A Business Central clone/replacement" | it is modelled on how BC posts documents; it is not compatible with BC | never; say "modelled on" |
-
-Note that the README's current sentence "Every endpoint has a test that tries to reach
-another tenant's data and gets 404" is the absolute form in the row above. Tightening
-it is a docs change for Stefan to approve.
 
 ## 4. Wording a claim
 
@@ -122,44 +132,14 @@ it is a docs change for Stefan to approve.
 Rules of thumb:
 
 - Prefer the mechanism and the proof to an adjective.
-- Use "decided (ADR-NNNN), not built yet" freely: showing the decision record is a
-  legitimate claim about design skill.
+- Use "decided (ADR-NNNN), not built yet" freely: pointing to the decision record is
+  a legitimate statement about the design.
 - A roadmap item is written as scope with a status (`next`, `planned`), never in the
   present tense.
 - Counts go stale. After any change to tests, rerun and update the README's total and
   its per-project table together.
 
-## 5. Statements that are safe on a CV (2026-11-15)
-
-Each is true today and maps to §2. Recheck before reuse; the phase may have moved on.
-
-Choose verbs you can defend in an interview. This repository is openly developed with
-an AI assistant (its `CLAUDE.md` is public and says how), with every change reviewed
-and merged by the maintainer. Whether a bullet says "built", "designed" or "designed
-and reviewed" is the maintainer's call; no bullet may imply something a reader of the
-repository would find untrue.
-
-- Built the foundation of a multi-tenant ERP backend on .NET 10 and PostgreSQL as a
-  modular monolith (Catalog and Sales implemented, Inventory and Invoicing scaffolded),
-  with module boundaries enforced by architecture tests in CI.
-- Implemented tenant isolation with EF Core global query filters and a `SaveChanges`
-  interceptor; every item and customer endpoint has a test proving another tenant's
-  data answers 404.
-- Secured the API with Keycloak (OIDC/JWT), permission-based authorization policies
-  and a deny-by-default fallback policy; the role-to-permission matrix is verified by
-  tests.
-- Prevented lost updates with ETag / If-Match over PostgreSQL's `xmin` row version.
-- Wrote 121 automated tests, most of them integration tests running the real API
-  against PostgreSQL in Docker (Testcontainers), on every pull request in GitHub
-  Actions.
-- Proved that the number series (customer numbers today) never hands out a duplicate,
-  with a test of 50 parallel requests.
-- Recorded ten architecture decisions (ADRs), each with the alternatives rejected,
-  including a free-dependencies-only policy.
-
-Not yet safe on a CV: anything in §3.
-
-## 6. Before publishing a claim: checklist
+## 5. Before publishing a claim: checklist
 
 - [ ] The thing is on `main` (`git log main --oneline -5`, not only on a branch).
 - [ ] I can name the test, file or measurement, and I ran or opened it today.
@@ -180,14 +160,16 @@ Not yet safe on a CV: anything in §3.
 ## Provenance and maintenance
 
 Written 2026-11-15 against `main` at the end of phase 1 (PRs #1-#9), after a green run
-of 121 tests. This skill goes stale faster than any other: every merged feature moves
+of 121 tests; renamed from `mini-erp-portfolio-claims` and refocused on the project rule
+the same day. This skill goes stale faster than any other: every merged feature moves
 rows from §3 to §2. Re-verify:
 
 ```bash
-dotnet test                                              # the totals in §2 and §5
+dotnet test                                              # the totals in §2
 dotnet test --no-build --list-tests | grep -c "BR13"     # cross-tenant proofs still present
 ls src/Modules/MiniErp.Inventory src/Modules/MiniErp.Invoicing   # more than the module class? then revisit §3
 ls docs/adr/ | wc -l                                     # ADR count (10 records + README on 2026-11-15)
 grep -n "claims what the code" README.md                 # the README's own promise is still there
-cat .github/workflows/ci.yml                             # dependency scan added? then update §3
+dotnet msbuild src/MiniErp.Api/MiniErp.Api.csproj -getProperty:NuGetAuditMode -getProperty:TreatWarningsAsErrors   # all / true, or the audit row in §2 no longer holds
+gh api repos/stefanbabic5/mini-erp --jq .description     # the repository description (§1, last paragraph)
 ```

@@ -8,6 +8,7 @@ name: mini-erp
 
 services:
   postgres:
+    # PostgreSQL licence
     image: postgres:18.7-alpine
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-mini_erp}
@@ -27,6 +28,7 @@ services:
   # tenants Alfa and Beta, one user per role in each (password: dev-password).
   # Admin console: http://localhost:8080 (admin / admin). Development mode only.
   keycloak:
+    # Apache-2.0
     image: quay.io/keycloak/keycloak:26.8.2
     command: ["start-dev", "--import-realm"]
     environment:
@@ -40,6 +42,7 @@ services:
 
   # Receives logs, traces and metrics over OTLP and shows them in a web UI.
   dashboard:
+    # MIT
     image: mcr.microsoft.com/dotnet/aspire-dashboard:13.6.5
     environment:
       # Local development only: the UI opens without a login token.

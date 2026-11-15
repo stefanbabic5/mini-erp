@@ -25,7 +25,7 @@ reference files before writing; this skill tells you what to copy and what must
 change. `CLAUDE.md` ("Endpoint conventions") is the short statement of the rules.
 
 Explicit, readable code is preferred over clever code: the maintainer must be able to
-explain every line in an interview (working agreement 7). No mediator and no mapper
+explain every line (working agreement 7). No mediator and no mapper
 library (ADR-0007). Handlers use the module's DbContext directly, as the reference
 does; there is no repository layer to copy.
 
